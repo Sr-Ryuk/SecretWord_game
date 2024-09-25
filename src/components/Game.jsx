@@ -1,71 +1,88 @@
-import { useState, useRef } from 'react';
-import './Game.css';
-import PropTypes from 'prop-types';
+import { useState, useRef } from "react";
+import PropTypes from "prop-types"; // Importa o PropTypes para validação de props
 
-const Game = ({verifyLetter, pickedWord, pickedCategory, letters, guessedLetters, wrongLetters, guesses, score}) => {
+// styles
+import "./Game.css";
 
+const Game = ({
+  verifyLetter,
+  pickedCategory,
+  letters,
+  guessedLetters,
+  wrongLetters,
+  guesses,
+  score,
+}) => {
   const [letter, setLetter] = useState("");
   const letterInputRef = useRef(null);
 
   const handleSubmit = (e) => {
-      e.preventDefault();
+    e.preventDefault();
 
+    if (letter.match(/[a-z]/i)) { // Verifica se a letra é válida
       verifyLetter(letter);
-
       setLetter("");
-
-      letterInputRef.current.focus();
     }
 
+    letterInputRef.current.focus();
+  };
 
   return (
-
-    <div className='game'>
-      <h3>{pickedWord}</h3>
-        <p className="points">
-          <span>Pontuação: {score}</span>
-        </p>
-        <h1>Adivinhe a palavra:</h1>
-        <h3 className='tip'>
-          Dica sobre a palavra: <span>{pickedCategory}</span>
-        </h3>
-        <p>Você ainda tem {guesses} tentativas.</p>
-        <div className="wordContainer">
-          {letters.map((letter, i) => (
-                guessedLetters.includes(guessedLetters) ? (
-                  <span key={i} className="letter">{letter}</span>
-                ): (
-                  <span key={i} className="blankSquare"></span>
-                )
-          ))}
- 
-        </div>
-        <div className="letterContainer">
-          <p>Tente adivinha uma letra da palavras</p>
-          <form onSubmit={handleSubmit}>
-            <input type="text" name="letter" maxLength="1" required onChange={(e) => setLetter(e.target.value)} value={letter} ref={letterInputRef}/>
-            <button>Jogar!</button>
-          </form>
-        </div>
-        <div className="wrongLettersContainer">
-          <p>Letras ja utilizadas</p>
-            {wrongLetters.map((letter, i) => (
-              <span key={i}>{letter}</span>
-            ))}
-        </div>
+    <div className="game">
+      <p className="points">
+        <span>Pontuação</span>: {score}
+      </p>
+      <h1>Advinhe a palavra:</h1>
+      <h3 className="tip">
+        Dica sobre a palavra: <span>{pickedCategory}</span>
+      </h3>
+      <p>Você ainda tem {guesses} tentativa(s).</p>
+      <div className="wordContainer">
+        {letters.map((letter, i) =>
+          guessedLetters.includes(letter) ? (
+            <span className="letter" key={i}>
+              {letter}
+            </span>
+          ) : (
+            <span key={i} className="blankSquare"></span>
+          )
+        )}
+      </div>
+      <div className="letterContainer">
+        <p>Tente adivinhar uma letra da palavra:</p>
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            name="letter"
+            maxLength="1"
+            onChange={(e) => setLetter(e.target.value)}
+            required
+            value={letter}
+            ref={letterInputRef}
+          />
+          <button>Jogar!</button>
+        </form>
+      </div>
+      <div className="wrongLettersContainer">
+        <p>Letras já utilizadas:</p>
+        {wrongLetters.map((letter, i) => (
+          <span key={i}>{letter}, </span>
+        ))}
+      </div>
     </div>
   );
 };
 
+// Definindo os tipos e requisitos das props com PropTypes
 Game.propTypes = {
-  verifyLetter: PropTypes.func.isRequired,
-  pickedWord: PropTypes.func.isRequired,
-  pickedCategory: PropTypes.func.isRequired,
-  letters: PropTypes.func.isRequired,
-  guessedLetters: PropTypes.func.isRequired,
-  wrongLetters: PropTypes.func.isRequired,
-  guesses: PropTypes.func.isRequired,
-  score: PropTypes.func.isRequired, // exemplo para uma prop do tipo função
+  verifyLetter: PropTypes.func.isRequired, // Função obrigatória
+  pickedCategory: PropTypes.string.isRequired, // String obrigatória
+  pickedWord: PropTypes.string.isRequired, // String obrigatória
+  letters: PropTypes.arrayOf(PropTypes.string).isRequired, // Array de strings obrigatório
+  guessedLetters: PropTypes.arrayOf(PropTypes.string).isRequired, // Array de strings obrigatório
+  wrongLetters: PropTypes.arrayOf(PropTypes.string).isRequired, // Array de strings obrigatório
+  guesses: PropTypes.number.isRequired, // Número obrigatório
+  score: PropTypes.number.isRequired, // Número obrigatório
 };
 
 export default Game;

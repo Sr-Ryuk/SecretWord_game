@@ -1,18 +1,22 @@
-import './GameOver.css';
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types"; // Importa o PropTypes para validação de props
+import "./GameOver.css";
 
-
-const GameOver = ({ retry }) => {
+const GameOver = ({ retry, score }) => {
   return (
-    <div>
-      <h2>Game Over</h2>
-      <button onClick={retry} >Resetar jogo</button>
+    <div className="gameover">
+      <h1>Fim de jogo!</h1>
+      <h2>
+        A sua pontuação foi: <span>{score}</span>
+      </h2>
+      <button onClick={retry}>Reiniciar</button>
     </div>
   );
 };
 
+// Definindo os tipos e requisitos das props com PropTypes
 GameOver.propTypes = {
-  retry: PropTypes.func.isRequired, // exemplo para uma prop do tipo função
+  retry: PropTypes.func.isRequired, // Função obrigatória
+  score: PropTypes.number.isRequired, // Número obrigatório
 };
 
 export default GameOver;
