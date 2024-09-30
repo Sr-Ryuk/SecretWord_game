@@ -8,8 +8,29 @@ import GameOver from "./components/GameOver";
 // styles
 import "./App.css";
 
-// data
-import { wordsList } from "./data/word";
+
+// API
+import API_URL from "./components/config";
+
+// Função para buscar os dados da API e transformá-los no formato desejado
+async function getWordsList() {
+  try {
+    const response = await fetch(API_URL); // Substitua pela URL da sua MockAPI
+    const data = await response.json();
+
+    // Converte o JSON recebido para o formato desejado
+    const wordsList = data.reduce((acc, item) => {
+      acc[item.category] = item.words.map(word => {
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+      });
+      return acc;
+    }, {});
+
+    return wordsList;
+  } catch (error) {
+    console.error("Erro ao buscar dados da API:", error);
+  }
+}
 
 const stages = [
   { id: 1, name: "start" },
@@ -19,8 +40,8 @@ const stages = [
 
 function App() {
   const [gameStage, setGameStage] = useState(stages[0].name);
-  const [words] = useState(wordsList);
-
+  const [words, setWords] = useState(null); // Inicialmente null para indicar que os dados ainda não foram carregados
+  
   const [pickedWord, setPickedWord] = useState("");
   const [pickedCategory, setPickedCategory] = useState("");
   const [letters, setLetters] = useState([]);
@@ -30,9 +51,23 @@ function App() {
   const [guesses, setGuesses] = useState(3);
   const [score, setScore] = useState(0);
 
+  // Busca os dados da API quando o componente é montado
+  useEffect(() => {
+    const fetchWords = async () => {
+      const wordData = await getWordsList();
+      setWords(wordData);
+    };
+
+    fetchWords();
+  }, []);
+
   // Função para escolher uma palavra e categoria aleatória
   const pickWordAndCategory = useCallback(() => {
+    if (!words) return; // Se `words` for null, não faz nada
+
     const categories = Object.keys(words);
+    if (categories.length === 0) return; // Verificação adicional para garantir que as categorias existam
+
     const category =
       categories[Math.floor(Math.random() * categories.length)];
 
@@ -44,10 +79,15 @@ function App() {
 
   // Iniciar o jogo
   const startGame = useCallback(() => {
+    if (!words) return; // Garante que o jogo só inicie se as palavras estiverem disponíveis
+
     clearLettersStates();
 
     // Escolher uma palavra e categoria
-    const { category, word } = pickWordAndCategory();
+    const result = pickWordAndCategory();
+    if (!result) return; // Caso não haja palavra disponível, encerra a função
+
+    const { category, word } = result;
 
     let wordLetters = word.split("").map((l) => l.toLowerCase());
 
@@ -56,7 +96,7 @@ function App() {
     setLetters(wordLetters);
 
     setGameStage(stages[1].name);
-  }, [pickWordAndCategory]);
+  }, [pickWordAndCategory, words]);
 
   // Verificar se a letra está correta
   const verifyLetter = (letter) => {
@@ -111,7 +151,7 @@ function App() {
   useEffect(() => {
     const uniqueLetters = [...new Set(letters)];
 
-    if (guessedLetters.length === uniqueLetters.length) {
+    if (guessedLetters.length === uniqueLetters.length && letters.length > 0) {
       setScore((actualScore) => actualScore + 100);
 
       // Inicia um novo jogo
@@ -122,7 +162,7 @@ function App() {
   return (
     <div className="App">
       {gameStage === "start" && <StartScreen startGame={startGame} />}
-      {gameStage === "game" && (
+      {gameStage === "game" && words && ( // Certifica-se de que `words` tenha sido carregado
         <Game
           verifyLetter={verifyLetter}
           pickedCategory={pickedCategory}
