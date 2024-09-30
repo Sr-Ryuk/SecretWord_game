@@ -12,10 +12,10 @@ import "./App.css";
 // API
 import API_URL from "./components/config";
 
-// Função para buscar os dados da API e transformá-los no formato desejado
+// Função para buscar os dados da API
 async function getWordsList() {
   try {
-    const response = await fetch(API_URL); // Substitua pela URL da sua MockAPI
+    const response = await fetch(API_URL);
     const data = await response.json();
 
     // Converte o JSON recebido para o formato desejado
@@ -40,7 +40,7 @@ const stages = [
 
 function App() {
   const [gameStage, setGameStage] = useState(stages[0].name);
-  const [words, setWords] = useState(null); // Inicialmente null para indicar que os dados ainda não foram carregados
+  const [words, setWords] = useState(null);
   
   const [pickedWord, setPickedWord] = useState("");
   const [pickedCategory, setPickedCategory] = useState("");
@@ -51,7 +51,7 @@ function App() {
   const [guesses, setGuesses] = useState(3);
   const [score, setScore] = useState(0);
 
-  // Busca os dados da API quando o componente é montado
+  // Busca os dados da API quando o componente é renderizado
   useEffect(() => {
     const fetchWords = async () => {
       const wordData = await getWordsList();
@@ -63,10 +63,10 @@ function App() {
 
   // Função para escolher uma palavra e categoria aleatória
   const pickWordAndCategory = useCallback(() => {
-    if (!words) return; // Se `words` for null, não faz nada
+    if (!words) return;
 
     const categories = Object.keys(words);
-    if (categories.length === 0) return; // Verificação adicional para garantir que as categorias existam
+    if (categories.length === 0) return;
 
     const category =
       categories[Math.floor(Math.random() * categories.length)];
